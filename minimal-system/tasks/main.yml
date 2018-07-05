@@ -1,0 +1,33 @@
+---
+- name: Install packages
+  apt: name={{ item }} state=latest
+  with_items:
+          - vim
+          - tcpdump
+          - net-tools
+          - telnet
+          - nmap
+          - sudo
+          - htop
+          - locate
+          - mtr-tiny
+- name: create directory ssh 
+  file: path=/root/.ssh state=directory
+- name: Copy SSh Keys 
+  copy: src=authorized_keys dest=/root/.ssh/authorized_keys
+- name: Disable visual mouse vim
+  copy:
+          dest: '/root/.vimrc'
+          content: 'set mouse-=a'
+- name: Enable syntax on vim
+  lineinfile:
+          dest: '/etc/vim/vimrc'
+          regexp: '^"\s*syntax\s*on.*$' 
+          line: 'syntax on' 
+          backrefs: yes
+- name: Enable dark vim
+  lineinfile:
+          dest: '/etc/vim/vimrc'
+          regexp: '^"\s*set\s*background=dark.*$' 
+          line: 'set background=dark' 
+          backrefs: yes

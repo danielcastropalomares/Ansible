@@ -1,0 +1,17 @@
+---
+- hosts: routers
+  connection: network_cli
+  #remote_user: ansible
+  become: yes
+  become_method: enable
+
+  tasks:
+    - name: load new acl
+      ios_config:
+         lines:
+            - 10 permit ip host 1.1.1.1 any log
+            - 20 permit ip host 2.2.2.2 any log
+            - 30 permit ip host 3.3.3.3 any log
+         parents: ip access-list extended test
+         before:  no ip access-list extended test
+         match: exact

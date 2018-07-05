@@ -1,0 +1,6 @@
+---
+#los backups se guardaran en la carpeta /etc/ansible/backup
+- name: Backup configuration
+  ios_config:
+    backup: yes
+

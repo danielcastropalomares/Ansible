@@ -1,0 +1,79 @@
+---
+#Fuente: https://www.cymru.com/Documents/secure-ios-template.html
+#Cosas a configurar: 
+#ACL para el snmp
+#ACL para VTY
+#Variables:
+#-ACL SNMP
+#
+- name: configure hostname
+  ios_config:
+    lines: hostname {{ inventory_hostname }}
+- name: configure ntp and timezone
+  ios_config:
+    lines:
+      #- ntp server 52.166.120.77
+      - ntp server {{ ntp_server }} 
+      - clock timezone MADRID 1 0
+      - clock summer-time MADRID recurring last Sun Mar 2:00 last Sun Oct 2:00 
+- name: disable resolv 
+  ios_config:
+    lines:
+      - no ip domain lookup 
+      - no ip bootp server 
+      - no service pad 
+- name:  Show copious timestamps in our logs 
+  ios_config:
+    lines:
+      - service timestamps debug datetime msec show-timezone localtime 
+- name: password encryption 
+  ios_config:
+    lines:
+      - service password-encryption 
+- name: no logging console and loggin buffer
+  ios_config:
+    lines:
+      - no logging console 
+      - logging buffered 16384 debugging
+- name: disable HTTP and HTTPS server 
+  ios_config:
+    lines:
+      - no ip http server 
+      - no ip http secure-server 
+- name: login failure and success login 
+  ios_config:
+    lines:
+      - login on-failure log
+      - login on-success log 
+- name: configure the login banner
+  ios_banner:
+    banner: login
+    text: |
+      Router foo. Access to this device or the attac
+      networks is prohibited without express written permissi
+      Violators will be prosecuted to the fullest extent of both ci
+      and criminal l
+      We don't like you. Go away.
+    state: present
+- name: ACL for MGMT (ssh and SNMP) 
+  ios_config:
+    lines:
+      - 10 permit ip {{ NET_MGMT1 }} any
+      - 20 permit ip {{ NET_MGMT2 }} any
+      - 30 permit ip {{ NET_MGMT3 }} any
+    parents: ip access-list extended ACL_MGMT
+    before:  no ip access-list extended ACL_MGMT
+    match: exact
+- name: configure login local and limit acces with ACL 
+  ios_config:
+    lines:
+      - line vty 0  15
+      - login local  
+      - access-class ACL_MGMT in 
+- name: configure SNMP 
+  ios_config:
+    lines:
+      - snmp-server community {{ comunity_server }} RO ACL_MGMT 
+- name: save running to startup
+  ios_config:
+    save_when: modified

@@ -1,0 +1,14 @@
+---
+- name: Actualizamos cache repositorios y instalamos zabbix-agent
+  apt:
+    #update_cache: yes
+    name: zabbix-agent
+
+- name: "Configure zabbix-agent"
+  template:
+    src: etc/zabbix/zabbix_agentd.conf  
+    dest: /etc/zabbix/zabbix_agentd.conf 
+    #owner: zabbix
+    #group: zabbix
+    #mode: 0644
+  notify: zabbix-agent restarted

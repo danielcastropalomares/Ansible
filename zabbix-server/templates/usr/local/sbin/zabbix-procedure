@@ -1,0 +1,2 @@
+#!/bin/bash
+/usr/bin/mysql -u root zabbix -e "CALL partition_maintenance_all('{{ zabbix_server_dbname }}');" > /var/log/procedure

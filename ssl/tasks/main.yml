@@ -1,0 +1,11 @@
+---
+- name: a2enmod ssl 
+  apache2_module:
+    state: present
+    name: ssl 
+  notify:
+    - restart apache2
+- name: a2ensite default-ssl 
+  command: a2ensite default-ssl
+  notify:
+    - restart apache2
