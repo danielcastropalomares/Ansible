@@ -1,0 +1,3 @@
+---
+# defaults file;
+directory_bck: /etc /home /usr/local /root 

@@ -1,0 +1,12 @@
+when = everyday at 01
+backupname = {{ ansible_hostname }} 
+backupdir = /var/backups/tar/{{ ansible_hostname }}
+compress = bzip 
+#includes =  /etc /home /usr/local {{ directory_bck }}
+includes =  {{ directory_bck }}
+excludes =  /tmp /proc /sys /dev /srv /media /misc /net /selinux
+
+# tar binary - have to be GNU tar
+#TAR=/bin/tar
+#DATE           /bin/date
+#DATEFORMAT     "%Y.%m.%d-%H%M"

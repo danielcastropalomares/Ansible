@@ -1,0 +1,19 @@
+---
+#- name: "load vars" 
+#  include_vars: .yml
+
+- name: Install packages
+  apt: name={{ item }} state=latest
+  with_items:
+    - backupninja
+- name: crate directory backups
+  file: path=/var/backups/tar/{{ ansible_hostname }} state=directory
+
+- name: Copy config of backupninja, directory included {{ directory_bck }} 
+  template: 
+    src: etc/backup.d/10 
+    dest: /etc/backup.d/10.tar
+    mode: 0600
+
+- name: Copy cron 
+  template: src=etc/cron.d/backupninja dest=/etc/cron.d/backupninja
