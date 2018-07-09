@@ -5,11 +5,11 @@ Por defecto, los directorios a realizar backup son:
 /etc /home /usr/local /root
 ```
 
-En caso de a√adir alguno mas, hay que indicar los directorio anterior + el nuevo a√dir. Ejemplo:
+En caso de a√±adir alguno mas, hay que indicar los directorio anterior + el nuevo a√±adir. Ejemplo:
 
 ```
 ---
-- hosts: ieaisa-oficina 
+- hosts: TEST01
     - { role : backupninja, directory_bck: /etc /home /usr/local /root /var/lib/rancid/ }
 
 ```
