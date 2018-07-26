@@ -62,8 +62,30 @@
     - apache2
     - php
     - php-curl
+    - python-passlib 
   notify:
     - restart apache2
+
+- name: copy htaccess for weathermap 
+  template:
+    src: etc/apache2/conf-available/weathermap-htcacces.conf
+    dest: /etc/apache2/conf-available/weathermap-htcacces.conf 
+  register: ht_check
+
+- name: Enable htacces
+  command: a2enconf weathermap-htcacces.conf
+  notify:
+    - restart apache2
+  when: ht_check.changed
+
+- name: create htpasswd
+  htpasswd:
+    path: /var/www/html/weathermap/.htpasswd
+    name: "{{ htaccess_user }}"
+    password: "{{ htaccess_pw }}"
+    owner: root
+    group: www-data
+    mode: 0640
 
 - debug: 
     msg: "Now you can access to weathermap http://{{ ansible_host }}/weathermap/editor.php, remember create a new user on Zabbix with permisions read only for weathermap. "
