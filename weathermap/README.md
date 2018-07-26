@@ -26,7 +26,7 @@ This playbook include:
 * Enable editor web on editor.php 
 * Copy custom icons
 * Download and install php-weathermap-zabbix-plugin
-* Install php-curl
+* Install php-curl, apache2 and php
 
 After installation, it's important create a new user on Zabbix with permisions read only. Is not recomandable use the user Admin for security.
 
