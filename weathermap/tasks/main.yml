@@ -1,0 +1,70 @@
+---
+- name: Check if weathermap exist
+  stat: 
+    path: /var/www/html/weathermap
+  register: weather_check
+- name: download weathermap
+  get_url:
+    url: https://github.com/howardjones/network-weathermap/releases/download/version-0.98/php-weathermap-0.98.zip 
+    dest: /usr/local/src
+  when: weather_check.stat.exists == False
+
+- name: Extract weathermap
+  unarchive:
+    src: /usr/local/src/php-weathermap-0.98.zip
+    dest: /var/www/html
+    remote_src: yes
+  when: weather_check.stat.exists == False
+
+- name: enable editor web
+  template:
+    src: var/www/html/weathermap/editor.php
+    dest: /var/www/html/weathermap/editor.php
+  when: weather_check.stat.exists == False
+
+- name: download zabbix plugin weathermap
+  get_url:
+    url: https://github.com/amousset/php-weathermap-zabbix-plugin/archive/master.zip 
+    dest: /usr/local/src
+  when: weather_check.stat.exists == False
+
+- name: Extract php-weathermap-zabbix-plugin
+  unarchive:
+    src: /usr/local/src/php-weathermap-zabbix-plugin-master.zip
+    dest: /tmp/
+    remote_src: yes
+  when: weather_check.stat.exists == False
+
+- name: copy the content of php-weathermap-zabbix-plugin to directory lib weathermap
+  command: cp -r /tmp/php-weathermap-zabbix-plugin-master/lib/ /var/www/html/weathermap/
+  when: weather_check.stat.exists == False
+
+- name: copy template of weathermap 
+  template:
+    src: var/www/html/weathermap/configs/template.conf
+    dest: /var/www/html/weathermap/configs/template.conf 
+
+- name: copy icons weathermap 
+  copy:
+    src: var/www/html/weathermap/images/
+    dest: /var/www/html/weathermap/images
+
+- name: change permisions weathermap
+  file:
+    dest: /var/www/html/weathermap
+    owner: www-data
+    group: www-data
+    recurse: yes
+
+- name: Install {{ item }} 
+  apt: name={{ item }} state=latest
+  with_items:
+    - apache2
+    - php
+    - php-curl
+  notify:
+    - restart apache2
+
+- debug: 
+    msg: "Now you can access to weathermap http://{{ ansible_host }}/weathermap/editor.php, remember create a new user on Zabbix with permisions read only for weathermap. "
+  when: weather_check.stat.exists == False
