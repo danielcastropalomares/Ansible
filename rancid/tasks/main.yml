@@ -1,0 +1,75 @@
+---
+# defaults file for zabbix-proxy
+# https://networklore.com/rancid-getting-started/
+#list_of_groups: SWITCH 
+
+- name: Install packages rancid and cvsweb
+  apt: name={{ item }} state=latest
+  with_items:
+          - rancid
+          - cvsweb
+          - apache2
+
+- name: link icons cvsweb
+  file:
+    src: /usr/share/cvsweb
+    dest: /var/www/html/cvsweb 
+    state: link
+
+- name: enable apache2 module cgi
+  command: a2enmod cgid creates=/etc/apache2/mods-enabled/cgid.load
+  notify: restart apache
+
+- name: config file cvsweb 
+  copy:
+    src: etc/cvsweb/cvsweb.conf 
+    dest: /etc/cvsweb/cvsweb.conf 
+
+- name: change permisions rancid
+  file:
+    dest: /var/lib/rancid/
+    owner: rancid
+    group: rancid
+    recurse: yes
+
+- name: copy example .cloginrc 
+  copy:
+    src: /usr/share/doc/rancid/examples/cloginrc.sample 
+    dest: /var/lib/rancid/.cloginrc
+    force: no
+    remote_src: yes
+
+- name: change permisions .cloginrc
+  file:
+    dest: /var/lib/rancid/.cloginrc
+    owner: rancid
+    group: rancid
+    mode: 0600
+
+- name: copy rancid.conf 
+  template:
+    src: etc/rancid/rancid.conf 
+    dest: /etc/rancid/rancid.conf 
+  register: rancid_check
+
+- name: setting up CVS
+  command: runuser -l rancid -c '/var/lib/rancid/bin/rancid-cvs'
+  when: rancid_check.changed
+
+- name: enable CRON.d for every day at 1:00 o clock
+  template:
+    src: etc/cron.d/rancid
+    dest: /etc/cron.d/rancid
+
+- name: copy ciscowlc.pm modify by dani 
+  template:
+    src: usr/share/perl5/rancid/ciscowlc.pm 
+    dest: /usr/share/perl5/rancid/ciscowlc.pm  
+
+- name: copy rancid.types.base modify by dani 
+  template:
+    src: etc/rancid/rancid.types.base 
+    dest: /etc/rancid/rancid.types.base  
+
+- debug: 
+    msg: "Now you can add the credrcentials on the file .clogin, afther this, add the router list inside of router.db. You can acces to rancid via web: http://{{ ansible_host }}/cgi-bin/cvsweb/"

@@ -1,0 +1,4 @@
+---
+#default file for weathermap
+#rancid_repo: 'Rancid Repository'
+rancid_groups: routers switchs 
