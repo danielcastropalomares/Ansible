@@ -1,0 +1,35 @@
+---
+- name: copy htaccess for {{ htaccess_name }} 
+  template:
+    src: etc/apache2/conf-available/serve-cgi-bin.conf
+    dest: /etc/apache2/conf-available/{{ htaccess_name }}-htaccess.conf 
+  register: ht_check
+  when: htaccess_name == "rancid"
+
+- name: Enable htacces for {{ htaccess_name }}
+  command: a2enconf {{ htaccess_name }}-htaccess.conf 
+  notify:
+    - restart apache2
+  when: ht_check.changed
+
+- name: copy htaccess for {{ htaccess_name }} 
+  template:
+    src: etc/apache2/conf-available/htaccess.conf
+    dest: /etc/apache2/conf-available/{{ htaccess_name }}-htaccess.conf 
+  register: ht_check
+  when: htaccess_name != "rancid"
+
+- name: Enable htacces for {{ htaccess_name }}
+  command: a2enconf {{ htaccess_name }}-htaccess.conf 
+  notify:
+    - restart apache2
+  when: ht_check.changed
+
+- name: create htpasswd on dir {{ htpasswd_path }} 
+  htpasswd:
+    path: "{{ htpasswd_path }}/.htpasswd"
+    name: "{{ htaccess_user }}"
+    password: "{{ htaccess_pw }}"
+    owner: root
+    group: www-data
+    mode: 0640
