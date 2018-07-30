@@ -10,8 +10,6 @@ zabx_username: Admin
 zabx_pw: zabbix
 zabx_url: http://{{ ansible_host }}/zabbix
 zabx_api_url: http://{{ ansible_host }}/zabbix/api_jsonrpc.php 
-htaccess_user: admin
-htaccess_pw: zabbix
 ```
 
 Example:
@@ -21,7 +19,7 @@ Example:
 - hosts: zabbix
   become: yes
   roles:
-     - { role: weathermap, zabx_username: weathermap, zabx_pw: zabbix, htaccess_user: admin, htaccess_pw: zabbix }
+     - { role: weathermap, zabx_username: weathermap, zabx_pw: zabbix }
 ```
 
 This playbook include:
@@ -30,6 +28,5 @@ This playbook include:
 * Copy custom icons
 * Download and install php-weathermap-zabbix-plugin
 * Install php-curl, apache2, php, python-passlib
-* Configure a htcacces in directory /var/www/html/weathermap 
 
 After installation, it's important create a new user on Zabbix with permisions read only. Is not recomandable use the user Admin for security.
