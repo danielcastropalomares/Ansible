@@ -1,6 +1,0 @@
----
-#default file for weathermap
-zabx_username: Admin
-zabx_pw: zabbix
-zabx_url: http://{{ ansible_host }}/zabbix
-zabx_api_url: http://{{ ansible_host }}/zabbix/api_jsonrpc.php 
