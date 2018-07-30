@@ -4,5 +4,3 @@ zabx_username: Admin
 zabx_pw: zabbix
 zabx_url: http://{{ ansible_host }}/zabbix
 zabx_api_url: http://{{ ansible_host }}/zabbix/api_jsonrpc.php 
-htaccess_user: admin
-htaccess_pw: zabbix
