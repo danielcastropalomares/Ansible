@@ -9,6 +9,24 @@
           - rancid
           - cvsweb
           - apache2
+          - python-passlib
+- name: create grup rancid
+  group:
+    name: rancid
+    state: present
+
+- name: create user rancid
+  user:
+    name: rancid
+    password:
+    groups: 
+      - rancid
+    state: present
+    shell: /bin/bash
+    system: no
+    createhome: no
+    home: /var/lib/rancid/
+
 
 - name: link icons cvsweb
   file:
