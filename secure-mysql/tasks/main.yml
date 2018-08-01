@@ -1,4 +1,7 @@
 ---
+- name: install python mysql bindings
+  apt: name=python-mysqldb state=present
+  become: yes
 
 # create root .my.cnf config file
 - name: Add .my.cnf
