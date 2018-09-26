@@ -1,11 +1,17 @@
-After installation:
+Important, this template is used with the next software:
+* Debian 9
+* Elastic stack version 6.4
+* Java openjdk-8
 
-· Send netflow data drom switch, router or firewall to IP elastiflow and port 2055 UDP.
-· Now acces to elastiflow via http://IP:5601, and create a new index : Management -> Index Patterns -> Create new index Patterns
-· Select "elastiflow-*" and timestamp
-· Finally import the dashboard from the github of the elastiflow "https://github.com/robcowart/elastiflow.git".
-· For import dashboard: Management -> Saves objects -> Import 
-· BET PATIENT! The kibana and logstash it's started after 10-15 minutes 
+
+After installation:
+* Send netflow data drom switch, router or firewall to IP elastiflow and port 2055 UDP.
+* Now acces to elastiflow via http://IP:5601, and create a new index : Management -> Index Patterns -> Create new index Patterns
+* Select "elastiflow-*" and timestamp
+* Finally import the dashboard from the github of the elastiflow "https://github.com/robcowart/elastiflow/archive/master.zip".
+* For import dashboard: Management -> Saves objects -> Import 
+
+# BE PATIENT! The kibana and logstash it's started after 10-15 minutes 
 
 You can check the state of services with the next commands:
 
