@@ -4,7 +4,11 @@ The real link of project it's from this URL:
 
 https://github.com/robcowart/elastiflow/blob/master/INSTALL.md
 
-# Requirements requirements
+# Requirements 
+
+More info:
+https://github.com/robcowart/elastiflow/blob/master/INSTALL.md
+
 
 flows/sec | (v)CPUs | Memory | Disk (30-days) | ES JVM Heap | LS JVM Heap
 ---:|---:|---:|---:|---:|---:
