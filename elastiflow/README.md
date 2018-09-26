@@ -5,11 +5,11 @@
 
 
 # After installation:
-* Send netflow data drom switch, router or firewall to IP elastiflow and port 2055 UDP.
-* Now acces to elastiflow via http://IP:5601, and create a new index : Management -> Index Patterns -> Create new index Patterns
-* Select "elastiflow-*" and timestamp
-* Finally import the dashboard from the github of the elastiflow "https://github.com/robcowart/elastiflow/archive/master.zip".
-* For import dashboard: Management -> Saves objects -> Import 
+1. Send netflow data from switch, router or firewall to IP elastiflow and port 2055 UDP.
+2. Now acces to elastiflow via http://IP:5601, and create a new index : Management -> Index Patterns -> Create new index Patterns
+3. Select "elastiflow-*" and timestamp
+4. Import the dashboard from the github of the elastiflow "https://github.com/robcowart/elastiflow/archive/master.zip".
+5. For import dashboard: Management -> Saves objects -> Import 
 
 > BE PATIENT! The kibana and logstash it's started after 10-15 minutes 
 
