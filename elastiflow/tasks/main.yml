@@ -1,0 +1,119 @@
+---
+- name: "Debian | Install gpg key"
+  apt_key:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+
+- name: "Debian install apt-transport-https"
+  apt:
+    name: apt-transport-https 
+    state: present
+
+- name: "Install repository elastic and java"
+  apt_repository:
+    repo: "{{ item }}"
+    #repo: deb https://artifacts.elastic.co/packages/6.x/apt stable main
+    state: present
+  with_items:
+    - deb https://artifacts.elastic.co/packages/6.x/apt stable main 
+    - deb http://ppa.launchpad.net/openjdk-r/ppa/ubuntu cosmic main
+
+    #- name: "Install repository java"
+    #  apt_repository:
+      #repo: ppa:openjdk-r/ppa 
+      #state: present
+      # codename: cosmic
+
+- name: apt-get update 
+  apt:
+    update_cache: yes
+
+- name: "Debian install packets java"
+  apt:
+    name: openjdk-8-jdk 
+    state: present
+
+- name: "Debian install packets elastic"
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - kibana
+    - elasticsearch
+    - logstash
+    - zip
+
+- name: enable service kibana, elasticsearch, logstash
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+    masked: no
+  with_items:
+    - kibana
+    - elasticsearch
+    - logstash
+
+- name: copy config of java 
+  template: src=jvm.options dest=/etc/logstash/jvm.options
+
+- name: copy config of kibana.yml 
+  template: src=kibana.yml dest=/etc/kibana/kibana.yml
+
+- name:  install logstash-codec-sflow 
+  command: /usr/share/logstash/bin/logstash-plugin install logstash-codec-sflow 
+
+- name:  install logstash-codec-netflow 
+  command: /usr/share/logstash/bin/logstash-plugin install logstash-codec-netflow
+
+- name:  install logstash-input-udp 
+  command: /usr/share/logstash/bin/logstash-plugin install logstash-input-udp 
+
+- name:  install  logstash-filter-dns
+  command: /usr/share/logstash/bin/logstash-plugin install logstash-filter-dns 
+
+#INSTALL ELASTIFLOW
+- name: Check if elastiflow directory exist
+  stat:
+    path: /etc/logstash/elastiflow
+  register: elastiflow_check
+
+- name: download elastiflow
+  get_url:
+    url: https://github.com/robcowart/elastiflow/archive/master.zip 
+    dest: /usr/local/src
+  when: elastiflow_check.stat.exists == False
+
+- name: Extract elastiflow
+  unarchive:
+    src: /usr/local/src/elastiflow-master.zip
+    dest: /usr/local/src 
+    remote_src: yes
+  when: elastiflow_check.stat.exists == False
+
+
+- name: copy the content of elastiflow to directory logstash
+  command: cp -r /usr/local/src/elastiflow-master/logstash/elastiflow /etc/logstash/
+  when: elastiflow_check.stat.exists == False
+
+- name: Copy the elastiflow.conf to systemd 
+  command: cp -a /usr/local/src/elastiflow-master/logstash.service.d/. /etc/systemd/system/logstash.service.d/ 
+  when: elastiflow_check.stat.exists == False
+
+- name: copy config of pipeline 
+  template: src=pipelines.yml dest=/etc/logstash/pipelines.yml
+
+- name: copy config of service.d elastiflow 
+  template: src=elastiflow.conf dest=/etc/systemd/system/logstash.service.d/elastiflow.conf
+
+- name:   Create logstash system startup script 
+  command: /usr/share/logstash/bin/system-install 
+  when: elastiflow_check.stat.exists == False
+
+- name: "start service kibana, elasticsearch, logstash"
+  systemd:
+    state: started
+    name: "{{ item }}"
+  with_items:
+    - kibana
+    - elasticsearch
+    - logstash
