@@ -1,6 +1,7 @@
 # Tested version:
 * Elastic stack version 6.4
 * Java openjdk-8
+* Debian 9
 
 
 # After installation:
