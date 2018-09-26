@@ -1,3 +1,17 @@
+# Source code
+
+The real link of project it's from this URL:
+
+https://github.com/robcowart/elastiflow/blob/master/INSTALL.md
+
+# Requirements requirements
+
+flows/sec | (v)CPUs | Memory | Disk (30-days) | ES JVM Heap | LS JVM Heap
+---:|---:|---:|---:|---:|---:
+250| 4 | 24 GB | 305 GB | 8 GB | 4 GB
+1000| 8 | 32 GB | 1.22 TB  | 12 GB | 4 GB
+2500| 12 | 64 GB | 3.05 TB | 24 GB | 6 GB
+
 # Tested version:
 * Elastic stack version 6.4
 * Java openjdk-8
