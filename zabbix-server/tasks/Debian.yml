@@ -1,0 +1,230 @@
+---
+
+- name: "Include Zabbix gpg ids"
+  include_vars: zabbix.yml
+
+- name: "Set short version name"
+  set_fact:
+    zabbix_short_version: "{{ zabbix_version | regex_replace('\\.', '') }}"
+
+- name: "Debian | Set some facts"
+  set_fact:
+    datafiles_path: /usr/share/zabbix-server-{{ zabbix_server_database }}
+  when:
+    - zabbix_version is version_compare('3.0', '<')
+  tags:
+    - zabbix-server
+    - init
+    - config
+
+- name: "Debian | Set some facts for Zabbix 3.0"
+  set_fact:
+    datafiles_path: /usr/share/doc/zabbix-server-{{ zabbix_server_database }}
+  when:
+    - zabbix_version is version_compare('3.0', '>=')
+  tags:
+    - zabbix-server
+    - init
+    - config
+
+- name: "Debian | Install gpg key"
+  apt_key:
+    id: "{{ sign_keys[zabbix_short_version][ansible_distribution_release]['sign_key'] }}"
+    url: http://repo.zabbix.com/zabbix-official-repo.key
+  when:
+    - zabbix_repo == "zabbix"
+  become: yes
+  tags:
+    - zabbix-server
+    - init
+
+- name: "Debian | Installing repository {{ ansible_distribution }}"
+  apt_repository:
+    repo: "{{ item }} http://repo.zabbix.com/zabbix/{{ zabbix_version }}/{{ ansible_distribution.lower() }}/ {{ ansible_distribution_release }} main"
+    state: present
+  when: zabbix_repo == "zabbix"
+  with_items:
+    - deb-src
+    - deb
+  tags:
+    - zabbix-server
+    - init
+
+- name: apt-get clean
+  shell: apt-get clean; rm -rf /tmp/*; apt-get update
+  args:
+    warn: False
+  changed_when: False
+  tags:
+    - skip_ansible_lint
+
+- name: "Debian | Installing zabbix-server-{{ zabbix_server_database }}"
+  apt:
+    pkg: zabbix-server-{{ zabbix_server_database }}
+    state: present
+    update_cache: yes
+    cache_valid_time: 0
+  tags:
+    - zabbix-server
+    - init
+
+- name: "Debian | Install Ansible module dependencies"
+  apt:
+    name: python-psycopg2
+    state: present
+  when:
+    - zabbix_database_creation
+  tags:
+    - zabbix-server
+    - init
+
+- name: "Debian | Install Mysql Client package"
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - mysql-client
+    - python-mysqldb
+  when:
+    - zabbix_server_database == 'mysql'
+  tags:
+    - zabbix-server
+    - init
+    - database
+- name: "Debian | zabbix-frontend-php zabbix-agent php-mysql"
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - zabbix-frontend-php
+    - zabbix-agent
+    - php-mysql* 
+    
+- name: "Debian | Install PostgreSQL Client package"
+  apt:
+    name: postgresql-client
+    state: present
+  when:
+    - zabbix_server_database == 'pgsql'
+  tags:
+    - zabbix-server
+    - init
+    - database
+    
+- name: modify timezone apache zabbix
+  lineinfile:
+    dest: '/etc/apache2/conf-available/zabbix.conf'
+    regexp: '# php_value date.timezone Europe/Riga'
+    line: 'php_value date.timezone Europe/Madrid'
+    backrefs: yes
+
+##Modify Dani for Cisco interface discovery
+- name: Add repository nonfree source.list
+  apt_repository: 
+    repo: deb http://deb.debian.org/debian stretch main contrib non-free
+    state: present
+
+- name: Add repository source.list
+  apt_repository: 
+    repo: deb http://security.debian.org/debian-security/ stretch/updates main contrib non-free
+    state: present
+
+- name: Add repository source.list
+  apt_repository: 
+    repo: deb http://deb.debian.org/debian stretch-updates main contrib non-free
+    state: present
+    
+- name: update cache
+  apt: 
+    update_cache: yes
+
+
+- name: Install packages
+  apt: name={{ item }} state=latest
+  with_items: 
+          - snmp
+          - snmp-mibs-downloader
+          - ruby
+          - gem
+
+- name: "Debian | Download MIBS"
+  shell: download-mibs
+
+- name: "Debian | Download if.speed"
+  get_url:
+    url: https://raw.githubusercontent.com/jjmartres/Zabbix/master/zbx-scripts/if.speed/if.speed
+    dest: /usr/lib/zabbix/externalscripts/if.speed
+    mode: 0711
+
+- name: "Debian | Download echo.something"
+  get_url:
+    url: https://raw.githubusercontent.com/jjmartres/Zabbix/master/zbx-scripts/echo.something/echo.something 
+    dest: /usr/lib/zabbix/externalscripts/echo.something
+    mode: 0711
+
+- name: Modify snmp.conf
+  lineinfile:
+          dest: '/etc/snmp/snmp.conf'
+          regexp: 'mibs :'
+          line: 'mibs +ALL'
+          backrefs: yes
+- gem:
+    name: snmp
+    state: latest
+
+#sysmondash
+- name: Install packages for SysmonDash
+  apt: name={{ item }} state=latest
+  with_items: 
+    - php-xml
+    - php7.0
+    - libapache2-mod-php7.0
+    - unzip 
+- name: create directory Sysmondash 
+  file: path=/etc/sysMonDash/ state=directory owner=www-data group=www-data
+
+  #- name: Create config.xml
+  #file:
+    #  path: /etc/sysMonDash/config.xml
+    #state: touch
+    #owner: www-data
+    #group: www-data 
+
+- name: Check if SysmonDash exist
+  stat:
+    path: /var/www/html/sysMonDash
+  register: sys_check
+
+  #- name: download sysmondash
+  #get_url:
+    #  url: https://github.com/nuxsmin/sysMonDash/archive/master.zip
+    #dest: /var/www/html/master.zip
+    #when: sys_check.stat.exists == False 
+
+    #- name: upload sysmondash
+    #  template: src=usr/local/src/master.zip dest=/var/www/html/master.zip
+    #when: sys_check.stat.exists == False 
+
+- name: Extract master.zip Sysmondash
+  unarchive:
+    #src: usr/local/src/master.zip 
+    src: master.zip 
+    dest: /var/www/html 
+    #remote_src: yes
+  when: sys_check.stat.exists == False 
+
+- name: Rename sysMonDash-master to sysMonDash 
+  command: mv /var/www/html/sysMonDash-master /var/www/html/sysMonDash
+  when: sys_check.stat.exists == False 
+
+- name: change permisions SysmonDash
+  file:
+    dest: /var/www/html/sysMonDash
+    owner: www-data
+    group: www-data 
+    recurse: yes
+  when: sys_check.stat.exists == False 
+- debug: 
+    msg: "Now you can configure sysmondash http://{{ ansible_host }}/sysMonDash/config.php"
+  when: sys_check.stat.exists == False 
+
