@@ -1,3 +1,7 @@
+
+(https://github.com/danielcastropalomares/Ansible/blob/master/weathermap/03.png)
+
+
 How to use this role
 
 This roles is designated for install weathermap and connect to Zabbix via php-weathermap-zabbix-plugin:
