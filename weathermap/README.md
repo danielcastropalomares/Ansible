@@ -30,3 +30,7 @@ This playbook include:
 * Install php-curl, apache2, php, python-passlib
 
 After installation, it's important create a new user on Zabbix with permisions read only. Is not recomandable use the user Admin for security.
+
+```
+root@debian:/var/www/html/weathermap# php ./weathermap --config configs/template.conf --ouput template.png --htmloutput template.hmtl
+```
