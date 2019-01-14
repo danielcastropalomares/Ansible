@@ -63,6 +63,7 @@
     - php
     - php-curl
     - python-passlib 
+    - php-pear
   notify:
     - restart apache2
 
