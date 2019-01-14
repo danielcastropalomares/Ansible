@@ -64,6 +64,7 @@
     - php-curl
     - python-passlib 
     - php-pear
+    - rrdtool
   notify:
     - restart apache2
 
