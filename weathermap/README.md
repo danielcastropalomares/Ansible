@@ -1,5 +1,5 @@
 
-(https://github.com/danielcastropalomares/Ansible/blob/master/weathermap/03.png)
+![Overview](https://github.com/danielcastropalomares/Ansible/blob/master/weathermap/03.png)
 
 
 How to use this role
