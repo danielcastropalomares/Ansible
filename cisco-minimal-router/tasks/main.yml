@@ -49,31 +49,31 @@
   ios_banner:
     banner: login
     text: |
-      Router foo. Access to this device or the attac
+      Router foo. Access to this device or the attack
       networks is prohibited without express written permissi
       Violators will be prosecuted to the fullest extent of both ci
       and criminal l
       We don't like you. Go away.
     state: present
-- name: ACL for MGMT (ssh and SNMP) 
-  ios_config:
-    lines:
-      - 10 permit ip {{ NET_MGMT1 }} any
-      - 20 permit ip {{ NET_MGMT2 }} any
-      - 30 permit ip {{ NET_MGMT3 }} any
-    parents: ip access-list extended ACL_MGMT
-    before:  no ip access-list extended ACL_MGMT
-    match: exact
-- name: configure login local and limit acces with ACL 
+#- name: ACL for MGMT (ssh and SNMP) 
+ # ios_config:
+  #  lines:
+   #   - 10 permit ip {{ NET_MGMT1 }} any
+    #  - 20 permit ip {{ NET_MGMT2 }} any
+     # - 30 permit ip {{ NET_MGMT3 }} any
+   # parents: ip access-list extended ACL_MGMT
+   # before:  no ip access-list extended ACL_MGMT
+   # match: exact
+- name: configure login local 
   ios_config:
     lines:
       - line vty 0  15
       - login local  
-      - access-class ACL_MGMT in 
+    #  - access-class ACL_MGMT in 
 - name: configure SNMP 
   ios_config:
     lines:
-      - snmp-server community {{ comunity_server }} RO ACL_MGMT 
+      - snmp-server community {{ comunity_server }} RO 
 - name: save running to startup
   ios_config:
     save_when: modified
