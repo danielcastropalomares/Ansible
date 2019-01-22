@@ -1,0 +1,31 @@
+---
+- name: load ssh key from ansible
+  set_fact:
+    my_ssh_key: "{{ lookup('env','HOME') }}/.ssh/id_rsa.pub"
+  tags: 
+    - lxc_container
+
+- name: create containers and install SSH and python
+  lxc_container:
+    name: "{{ item.hostname }}"
+    container_log: true
+    template: debian
+    state: started
+    template_options: --release "{{ item.release }}"
+    container_config:
+      - "lxc.network.type = veth"
+      - "lxc.network.flags = up"
+      - "lxc.network.link = {{ item.interface }}"
+      - "lxc.network.ipv4 = {{ item.ip }}/24"
+      - "lxc.network.ipv4.gateway = auto"
+    container_command: |
+      if [ ! -d ~/.ssh ]; then
+        mkdir ~/.ssh
+        echo "{{ lookup('file', my_ssh_key) }}" | tee -a ~/.ssh/authorized_keys
+      fi
+      apt-get update
+      apt-get install -y python
+  with_items: "{{ lxc_containers }}"
+  tags: 
+    - lxc_container
+
