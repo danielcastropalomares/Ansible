@@ -1,0 +1,30 @@
+---
+- name: install pacpakges lxc
+  apt: name={{ item }}
+  with_items:
+    - lxc
+    - lxc-dev
+    - python-pip
+
+- name: copy file lxc-net
+  template:
+    src: "{{ item.src }}" 
+    dst: "{{ item.dest }}" 
+  with_items:
+    - { src: 'etc/default/lxc-net', dest: '/etc/default/lxc-net' }
+    - { src: 'etc/lxc/default.conf', dest: '/etc/lxc/default.conf' }
+  notify:
+    - restart lxc-net
+
+- name: pip lxc packages are installed on host
+  pip:
+    name: lxc-python2
+  run_once: true
+
+- name: enable ip forwading
+  systctl:
+    name: net.ipv4.ip_forward
+    value: 1
+    sysctl_set: yes
+    state: present
+    reload: yes
