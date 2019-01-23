@@ -5,26 +5,39 @@
   tags: 
     - lxc_container
 
-- name: create containers and install SSH and python
+- name: create containers and key ssh 
   lxc_container:
     name: "{{ item.hostname }}"
     container_log: true
-    template: debian
+    template: "{{ item.template | default ('debian')}}"
     state: started
-    template_options: --release "{{ item.release }}"
+    template_options: --release "{{ item.release | default ('stretch') }}"
     container_config:
-      - "lxc.network.type = veth"
+      - "lxc.network.type = {{ item.type | default ('veth') }}"
       - "lxc.network.flags = up"
-      - "lxc.network.link = {{ item.interface }}"
-      - "lxc.network.ipv4 = {{ item.ip }}/24"
+      - "lxc.network.link = {{ item.interface | default ('lxcbr0') }}"
+      - "lxc.network.ipv4 = {{ item.ip }}"
+      - "lxc.start.auto = {{ item.autostart | default ('1') }}"
       - "lxc.network.ipv4.gateway = auto"
     container_command: |
       if [ ! -d ~/.ssh ]; then
         mkdir ~/.ssh
         echo "{{ lookup('file', my_ssh_key) }}" | tee -a ~/.ssh/authorized_keys
+        sed -i 's/dhcp/manual/' /etc/network/interfaces && systemctl restart network
       fi
-      apt-get update
-      apt-get install -y python
+  with_items: "{{ lxc_containers }}"
+  tags: 
+    - lxc_container
+# lo hago de esta manera ya que si intento instalar los paquetes en el task anterior no se llegaba a instalar
+
+- name: install ping utils and python for ansible 
+  lxc_container:
+    name: "{{ item.hostname }}"
+    container_command: |
+      dpkg -l | if ! grep --quiet 'iputils-ping\|python'; then
+        apt-get update
+        apt-get install -y python iputils-ping
+      fi
   with_items: "{{ lxc_containers }}"
   tags: 
     - lxc_container
