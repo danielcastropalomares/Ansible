@@ -1,3 +1,3 @@
 ---
 - name: restart lxc-net
-  serivce: name=lxc-net state=restarted
+  service: name=lxc-net state=restarted
