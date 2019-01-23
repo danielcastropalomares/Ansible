@@ -1,1 +1,5 @@
 USE_LXC_BRIDGE="true"
+LXC_ADDR="{{ lxc_addr | default ('10.0.3.1')}}"
+LXC_NETMASK="{{ lxc_netmask | default ('255.255.255.0')}}"
+LXC_NETWORK="{{ lxc_network | default ('10.0.3.0/24')}}"
+LXC_DHCP_RANGE="{{ lxc_dhcprange | default ('10.0.3.100,10.0.3.200')}}"
