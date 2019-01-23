@@ -15,9 +15,13 @@
   with_items:
     - { src: 'etc/default/lxc-net', dest: '/etc/default/lxc-net' }
     - { src: 'etc/lxc/default.conf', dest: '/etc/lxc/default.conf' }
-    #- { src: 'etc/lxc/dnsmasq.conf', dest: '/etc/lxc/dnsmasq.conf' }
   notify:
     - restart lxc-net
+  tags:
+    - lxc_server
+
+- name: flush handlers
+  meta: flush_handlers
   tags:
     - lxc_server
 
