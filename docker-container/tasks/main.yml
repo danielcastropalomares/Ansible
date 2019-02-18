@@ -1,0 +1,24 @@
+---
+- name: pull the last image of docker
+  docker_image:
+    name: "{{ item.image }}"
+    pull: yes
+    force: yes
+  with_items: "{{ docker_containers }}"
+  tags:
+    - docker_images
+    - docker_containers
+
+- name: Create a container 
+  docker_container:
+    name: "{{ item.name }}"
+    hostname: "{{ item.hostname | default(item.name) }}"
+    ports: "{{ item.ports | default(omit) }}"
+    state: "{{ item.state | default('started') }}"
+    image: "{{ item.image }}"
+    restart_policy: "{{ item.restart | default('always') }}"
+    env: "{{ item.env | default('{}') }}"
+    volumes: "{{ item.volumes | default(omit) }}"
+  with_items: "{{ docker_containers }}"
+  tags:
+    - docker_containers
