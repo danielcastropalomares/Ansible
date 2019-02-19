@@ -1,4 +1,22 @@
 ---
+- name: install docker pi
+  pip:
+    name:
+      - docker
+      - requests
+  tags:
+    - docker_images
+    - docker_containers
+
+- name: pull the last image of docker
+  docker_image:
+    name: "{{ item.image }}"
+    pull: yes
+    force: yes
+  with_items: "{{ docker_containers }}"
+  tags:
+    - docker_images
+    - docker_containers
 - name: pull the last image of docker
   docker_image:
     name: "{{ item.image }}"
